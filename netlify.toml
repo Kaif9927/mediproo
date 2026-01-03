@@ -1,0 +1,44 @@
+[build]
+  publish = "."
+  command = "pip install -r requirements.txt"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+  NETLIFY = "true"
+
+# Serve static files directly
+[[redirects]]
+  from = "/static/*"
+  to = "/static/:splat"
+  status = 200
+  force = false
+
+# Redirect all other requests to the serverless function
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200
+
+[functions]
+  directory = "netlify/functions"
+  included_files = [
+    "app.py",
+    "templates/**",
+    "static/**",
+    "Training.csv",
+    "Testing.csv"
+  ]
+
+[[headers]]
+  for = "/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
